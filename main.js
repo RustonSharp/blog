@@ -16,7 +16,7 @@ async function fetchPosts() {
     }
 }
 
-const POSTS_PER_PAGE = 2; // Set to 2 to demonstrate pagination with 4 posts
+
 
 /**
  * Setup navigation links based on categories
@@ -61,21 +61,12 @@ async function renderHomePage() {
         if (headerTitle) headerTitle.textContent = `分类：${categoryFilter}`;
     }
 
-    // Pagination logic
-    const totalPages = Math.ceil(filteredPosts.length / POSTS_PER_PAGE);
-    if (currentPage > totalPages) currentPage = totalPages;
-    if (currentPage < 1) currentPage = 1;
-
-    const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
-    const paginatedPosts = filteredPosts.slice(startIndex, startIndex + POSTS_PER_PAGE);
-
-    if (paginatedPosts.length === 0) {
+    if (filteredPosts.length === 0) {
         container.innerHTML = '<p class="text-secondary">没有找到相关文章。</p>';
-        updatePaginationUI(0, 0, categoryFilter);
         return;
     }
 
-    const postsHtml = paginatedPosts.map(post => `
+    const postsHtml = filteredPosts.map(post => `
         <article class="article-card">
             <div class="article-meta">
                 <time class="article-date">${post.date}</time>
@@ -89,41 +80,6 @@ async function renderHomePage() {
     `).join('');
 
     container.innerHTML = postsHtml;
-    updatePaginationUI(currentPage, totalPages, categoryFilter);
-}
-
-function updatePaginationUI(currentPage, totalPages, categoryParam) {
-    const paginationContainer = document.querySelector('.pagination');
-    if (!paginationContainer) return;
-
-    if (totalPages <= 1) {
-        paginationContainer.style.display = 'none';
-        return;
-    }
-
-    paginationContainer.style.display = 'flex';
-    const catQuery = categoryParam ? `&category=${encodeURIComponent(categoryParam)}` : '';
-
-    const prevBtn = paginationContainer.querySelector('.btn-outline:first-child');
-    const nextBtn = paginationContainer.querySelector('.btn-outline:last-child');
-
-    // Update Previous
-    if (currentPage > 1) {
-        prevBtn.disabled = false;
-        prevBtn.onclick = () => window.location.href = `index.html?page=${currentPage - 1}${catQuery}`;
-    } else {
-        prevBtn.disabled = true;
-        prevBtn.onclick = null;
-    }
-
-    // Update Next
-    if (currentPage < totalPages) {
-        nextBtn.disabled = false;
-        nextBtn.onclick = () => window.location.href = `index.html?page=${currentPage + 1}${catQuery}`;
-    } else {
-        nextBtn.disabled = true;
-        nextBtn.onclick = null;
-    }
 }
 
 /**
@@ -308,14 +264,26 @@ function setupThemeToggle() {
     const themeIcon = document.getElementById('theme-icon');
     
     // Check local storage or system preference
-    const savedTheme = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    let savedTheme = null;
+    try {
+        savedTheme = localStorage.getItem('theme');
+    } catch (e) {
+        console.warn('LocalStorage is not accessible. Theme preference will not be saved.');
+    }
+    
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     let currentTheme = savedTheme || (prefersDark ? 'dark' : 'light');
     
     function applyTheme(theme) {
-        document.documentElement.setAttribute('data-theme', theme);
-        themeIcon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
-        updateHighlightTheme(theme);
+        try {
+            document.documentElement.setAttribute('data-theme', theme);
+            if (themeIcon) {
+                themeIcon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
+            }
+            updateHighlightTheme(theme);
+        } catch (error) {
+            console.error('Error applying theme:', error);
+        }
     }
     
     function updateHighlightTheme(theme) {
@@ -335,20 +303,30 @@ function setupThemeToggle() {
     }
     
     // Listen for system theme changes if not explicitly set
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-        if (!localStorage.getItem('theme')) {
-            const newTheme = e.matches ? 'dark' : 'light';
-            currentTheme = newTheme;
-            applyTheme(newTheme);
-        }
-    });
+    if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            let hasSaved = false;
+            try { hasSaved = !!localStorage.getItem('theme'); } catch(e) {}
+            
+            if (!hasSaved) {
+                const newTheme = e.matches ? 'dark' : 'light';
+                currentTheme = newTheme;
+                applyTheme(newTheme);
+            }
+        });
+    }
 
     // Apply initially
     applyTheme(currentTheme);
     
-    themeToggleBtn.addEventListener('click', () => {
+    themeToggleBtn.addEventListener('click', (event) => {
+        event.preventDefault(); // Prevent accidental form submissions/anchor jumping
         currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        localStorage.setItem('theme', currentTheme);
+        try {
+            localStorage.setItem('theme', currentTheme);
+        } catch (e) {
+            /* ignore */
+        }
         applyTheme(currentTheme);
     });
 }

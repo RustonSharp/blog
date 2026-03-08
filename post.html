@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>数字简约的架构 | Mist Isle</title>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="./style.css"/>
+    <!-- Highlight.js theme -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" media="(prefers-color-scheme: light)">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" media="(prefers-color-scheme: dark)">
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/medium-zoom/dist/medium-zoom.min.js"></script>
+    <script src="./main.js" defer></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navigation Header -->
+        <header class="header">
+            <div class="header-left">
+                <a href="index.html" class="header-logo">Mist Isle</a>
+            </div>
+            <div class="header-right">
+                <nav class="nav-links">
+                    <a href="#">文章</a>
+                    <a href="#">合集</a>
+                    <a href="#">关于</a>
+                </nav>
+                <button class="icon-button" aria-label="Share">
+                    <span class="material-icons">share</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="post-layout-content">
+                <!-- Metadata -->
+                <div class="post-meta">
+                    <span class="material-icons text-sm">calendar_today</span>
+                    <span id="post-date">加载中...</span>
+                    <span class="mx-2">•</span>
+                    <span class="material-icons text-sm">schedule</span>
+                    <span id="post-readtime">加载中...</span>
+                    <span class="mx-2">•</span>
+                    <span class="material-icons text-sm">description</span>
+                    <span id="post-wordcount">... 字</span>
+                </div>
+
+                <!-- Hero Section -->
+                <div>
+                    <h1 class="post-title" id="post-title">加载中...</h1>
+                    <p class="post-subtitle" style="display: none;"></p>
+                </div>
+                
+                <div class="post-hero-image" id="post-hero" style="background-image: none;">
+                </div>
+
+                <!-- Article Content -->
+                <article class="prose" id="post-content">
+                    <p>正在拉取文章内容...</p>
+                </article>
+
+                <!-- Post Navigation -->
+                <div class="post-navigation" id="post-navigation-container">
+                    <!-- Nav items will be loaded here -->
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p class="footer-text">© 2023 mistisle.com. 以简约为核心构建。</p>
+        </footer>
+    </div>
+</body>
+</html>

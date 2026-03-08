@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Minimalist Musings | Personal Blog</title>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="./style.css"/>
+    <script src="./main.js" defer></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navigation Header -->
+        <header class="header">
+            <div class="header-left">
+                <a href="index.html" class="header-logo">Mist Isle</a>
+            </div>
+            <div class="header-right">
+                <nav class="nav-links">
+                    <a href="#">文章</a>
+                    <a href="#">合集</a>
+                    <a href="#">关于</a>
+                </nav>
+                <button class="icon-button" aria-label="Share">
+                    <span class="material-icons">share</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="main-content container">
+            <!-- Hero Introduction -->
+            <section class="hero">
+                <h1 class="hero-title">关于 <span class="text-primary">设计</span>、技术与思考的文字。</h1>
+                <p class="hero-description">一个关于工艺与现代生活交汇点的思考花园。由 Marcus Thorne 每周更新。</p>
+            </section>
+
+            <div class="content-grid">
+                <!-- Blog Post List -->
+                <div class="articles-section" id="posts-container">
+                    <p class="text-secondary">Loading posts...</p>
+                </div>
+                
+                <div class="pagination" style="display: none; justify-content: space-between; align-items: center; margin-top: 3rem; margin-bottom: 2rem;">
+                    <button class="btn btn-outline" style="display: flex; align-items: center;" disabled><span class="material-icons mr-1">chevron_left</span> 上一页</button>
+                    <button class="btn btn-outline" style="display: flex; align-items: center;" disabled>下一页 <span class="material-icons ml-1">chevron_right</span></button>
+                </div>
+
+                <!-- Sidebar Content -->
+                <aside class="sidebar-section">
+                    <!-- About Widget -->
+                    <div class="widget">
+                        <h4 class="widget-title">关于作者</h4>
+                        <div class="author-profile">
+                            <img class="author-avatar" alt="Marcus Thorne" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB94Rn_0_5KanAyNaDTj8-7d6iOXErfZF2TAwQ4NGqvoSBjR6X63TGBohA8AibQdykNC2bY-NA2dpW9dOFdNo9WTJCBqzRz-MQIHbr-DaaqPLWDe3r_ftFqiUHb-k9P0dTfLOLu_1f1-qKSdpqK-1x2DrxE9kivHinSNX4BarLJCcCg2HwzgKzHrIKoQ8DIHrDGdlXwGPoqTUY06TSdRxXhWjomQ_mLvoaQ4T9T3hsyUV_UN79xJ49PNJN4tEDT3fY6uNmcW9KBSOQ"/>
+                            <div>
+                                <p class="author-name">Marcus Thorne</p>
+                                <p class="author-title">设计师 & 思考者</p>
+                            </div>
+                        </div>
+                        <p class="author-bio">目前致力于探索在 AI 驱动的世界中以人为本的设计。构建真正有价值的产品。</p>
+                    </div>
+
+                    <!-- Featured Categories -->
+                    <div class="widget-categories">
+                        <h4 class="widget-title">热门合集</h4>
+                        <ul class="categories-list">
+                            <li>
+                                <a class="category-item" href="#">
+                                    <span class="category-name">界面原则</span>
+                                    <span class="category-count">12 篇文章</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="category-item" href="#">
+                                    <span class="category-name">人类联系</span>
+                                    <span class="category-count">08 篇文章</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="category-item" href="#">
+                                    <span class="category-name">简约配置</span>
+                                    <span class="category-count">05 篇文章</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </aside>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p class="footer-text">© 2023 mistisle.com. 以简约为核心构建。</p>
+        </footer>
+    </div>
+</body>
+</html>

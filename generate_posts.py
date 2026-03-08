@@ -74,6 +74,7 @@ def main():
                     "title": frontmatter.get('title', 'Untitled'),
                     "date": frontmatter.get('date', datetime.today().strftime('%Y年%m月%d日')),
                     "category": frontmatter.get('category', '未分类'),
+                    "collection": frontmatter.get('collection', None),
                     "excerpt": frontmatter.get('excerpt', ''),
                     "file": filename,
                     "readTime": frontmatter.get('readTime', estimate_reading_time(total_words)),

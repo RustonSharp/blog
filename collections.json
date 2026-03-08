@@ -1,0 +1,20 @@
+[
+    {
+        "id": "interface-principles",
+        "name": "界面原则",
+        "icon": "dashboard",
+        "description": "构建更好界面的核心"
+    },
+    {
+        "id": "human-connection",
+        "name": "人类联系",
+        "icon": "people",
+        "description": "在技术中保持人性"
+    },
+    {
+        "id": "minimalism",
+        "name": "简约配置",
+        "icon": "layers",
+        "description": "如何精简工作流"
+    }
+]

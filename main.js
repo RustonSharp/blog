@@ -22,7 +22,7 @@ const POSTS_PER_PAGE = 2; // Set to 2 to demonstrate pagination with 4 posts
  * Setup navigation links based on categories
  */
 function renderCategoriesSidebar(posts) {
-    const categoriesContainer = document.querySelector('.widget-categories .category-list');
+    const categoriesContainer = document.querySelector('.widget-categories .categories-list');
     if (!categoriesContainer) return;
 
     // Extract unique categories and counts

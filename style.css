@@ -34,8 +34,20 @@
   --button-default: var(--color-slate-200);
 }
 
+[data-theme="dark"] {
+  --bg-color: var(--color-bg-dark);
+  --text-primary: var(--color-slate-100);
+  --text-secondary: var(--color-slate-400);
+  --text-muted: var(--color-slate-500);
+  --border-color: var(--color-slate-800);
+  --card-bg: rgba(15, 23, 42, 0.5); /* translucent slate-900 */
+  --header-bg: rgba(17, 22, 33, 0.8);
+  --button-hover: var(--color-slate-700);
+  --button-default: var(--color-slate-800);
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg-color: var(--color-bg-dark);
     --text-primary: var(--color-slate-100);
     --text-secondary: var(--color-slate-400);
@@ -164,8 +176,12 @@ button {
   transition: background-color 0.2s ease;
 }
 
+[data-theme="dark"] .icon-button {
+    background-color: rgba(var(--color-primary-rgb), 0.2);
+}
+
 @media (prefers-color-scheme: dark) {
-    .icon-button {
+    :root:not([data-theme="light"]) .icon-button {
         background-color: rgba(var(--color-primary-rgb), 0.2);
     }
 }
@@ -432,8 +448,14 @@ button {
   color: var(--color-slate-900);
 }
 
+[data-theme="dark"] .input-field {
+  background-color: var(--color-slate-900);
+  border-color: var(--color-slate-700);
+  color: var(--color-slate-100);
+}
+
 @media (prefers-color-scheme: dark) {
-  .input-field {
+  :root:not([data-theme="light"]) .input-field {
     background-color: var(--color-slate-900);
     border-color: var(--color-slate-700);
     color: var(--color-slate-100);
@@ -546,8 +568,12 @@ button {
   color: var(--text-secondary);
 }
 
+[data-theme="dark"] .prose {
+  color: var(--color-slate-300);
+}
+
 @media (prefers-color-scheme: dark) {
-  .prose {
+  :root:not([data-theme="light"]) .prose {
     color: var(--color-slate-300);
   }
 }
@@ -608,8 +634,12 @@ button {
   font-size: 0.875em;
 }
 
+[data-theme="dark"] .prose p code {
+  background-color: rgba(255,255,255,0.1);
+}
+
 @media (prefers-color-scheme: dark) {
-  .prose p code {
+  :root:not([data-theme="light"]) .prose p code {
     background-color: rgba(255,255,255,0.1);
   }
 }

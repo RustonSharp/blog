@@ -298,6 +298,61 @@ function setupShareButton() {
     });
 }
 
+/**
+ * Setup Theme Toggle functionality
+ */
+function setupThemeToggle() {
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    if (!themeToggleBtn) return;
+    
+    const themeIcon = document.getElementById('theme-icon');
+    
+    // Check local storage or system preference
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    let currentTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+    
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        themeIcon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
+        updateHighlightTheme(theme);
+    }
+    
+    function updateHighlightTheme(theme) {
+        // Toggle highlight.js styles if present
+        const lightLink = document.querySelector('link[href*="github.min.css"]');
+        const darkLink = document.querySelector('link[href*="github-dark.min.css"]');
+        
+        if (lightLink && darkLink) {
+            if (theme === 'dark') {
+                lightLink.media = 'print';
+                darkLink.media = 'all';
+            } else {
+                lightLink.media = 'all';
+                darkLink.media = 'print';
+            }
+        }
+    }
+    
+    // Listen for system theme changes if not explicitly set
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+        if (!localStorage.getItem('theme')) {
+            const newTheme = e.matches ? 'dark' : 'light';
+            currentTheme = newTheme;
+            applyTheme(newTheme);
+        }
+    });
+
+    // Apply initially
+    applyTheme(currentTheme);
+    
+    themeToggleBtn.addEventListener('click', () => {
+        currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('theme', currentTheme);
+        applyTheme(currentTheme);
+    });
+}
+
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', () => {
     // Add logic to fix header links
@@ -308,6 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (link.textContent === '关于') link.href = 'index.html#about';
     });
 
+    setupThemeToggle();
     setupShareButton();
     renderHomePage();
     renderPostPage();

@@ -4,43 +4,11 @@
         "title": "作为哲学的设计系统",
         "date": "2023年9月28日",
         "category": "设计",
+        "collection": "设计哲学",
         "excerpt": "如何将结构化的设计思维应用于屏幕之外，以优化你的个人工作流和生活选择。",
         "file": "design-philosophy.md",
         "readTime": "1 分钟",
         "wordCount": "326 字",
         "heroImage": "https://images.unsplash.com/photo-1502444330042-d1a1ddf9bb5b?q=80&w=1200"
-    },
-    {
-        "id": "intentional-writing",
-        "title": "有意识写作的艺术",
-        "date": "2023年9月15日",
-        "category": "写作",
-        "excerpt": "为什么降低发布频率反而能产生更好的想法并建立更忠实的读者群体。",
-        "file": "intentional-writing.md",
-        "readTime": "1 分钟",
-        "wordCount": "330 字",
-        "heroImage": "https://images.unsplash.com/photo-1455390582262-044cdead27d8?q=80&w=1200"
-    },
-    {
-        "id": "digital-simplicity",
-        "title": "数字简约的架构",
-        "date": "2023年10月24日",
-        "category": "设计",
-        "excerpt": "探索剥离非本质元素如何让我们与每天使用的工具建立更深层次的联系。为什么简单往往能带来更有意义的工作。",
-        "file": "digital-simplicity.md",
-        "readTime": "1 分钟",
-        "wordCount": "360 字",
-        "heroImage": "https://lh3.googleusercontent.com/aida-public/AB6AXuA7-SuOa1TtEEcLF4vubfoUqMq76FPpB673dOPY1eef843EJXeLVoOEEfGHuUDc0O4sNiYQzQIfdbAZIeFIMEFeqxZ4RY13ftX7a7KEp5bbs22BHncfOJWV2BcGJmUHKKOOLYw1BK8bsU0_MqTeAOo8Rz1fSYog7O2x2haebbSrYNbCQrHzCwlbD-XLbE0a3O7PPbFy2G5ne4UcBGgJhUW9lRSeBXjPucBd74ln5nGoO5hfmtQCvKxvz-jDQpCUZtiqLy5uYQxX_P4"
-    },
-    {
-        "id": "finding-focus",
-        "title": "在嘈杂的技术环境中寻找焦点",
-        "date": "2023年10月12日",
-        "category": "思考",
-        "excerpt": "当数字世界需要你投入 100% 的注意力时，管理认知负荷的策略。",
-        "file": "finding-focus.md",
-        "readTime": "1 分钟",
-        "wordCount": "330 字",
-        "heroImage": "https://images.unsplash.com/photo-1544928147-79a2dbc1f389?q=80&w=1200"
     }
 ]

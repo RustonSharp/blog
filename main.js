@@ -16,24 +16,84 @@ async function fetchPosts() {
     }
 }
 
-
+/**
+ * Fetch categories from categories.json
+ */
+async function fetchCategories() {
+    try {
+        const response = await fetch('./categories.json');
+        if (!response.ok) {
+            throw new Error(`Failed to fetch categories: ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Error loading categories:", error);
+        return [];
+    }
+}
 
 /**
- * Setup navigation links based on categories
+ * Fetch collections from collections.json
  */
-function renderCategoriesSidebar(posts) {
+async function fetchCollections() {
+    try {
+        const response = await fetch('./collections.json');
+        if (!response.ok) {
+            throw new Error(`Failed to fetch collections: ${response.statusText}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Error loading collections:", error);
+        return [];
+    }
+}
+
+/**
+ * Render categories sidebar
+ */
+function renderCategoriesSidebar(categories, posts) {
     const categoriesContainer = document.querySelector('.widget-categories .categories-list');
     if (!categoriesContainer) return;
 
-    // Extract unique categories and counts
     const counts = {};
     posts.forEach(p => {
         const cat = p.category || '未分类';
         counts[cat] = (counts[cat] || 0) + 1;
     });
 
-    categoriesContainer.innerHTML = Object.keys(counts).map(cat => `
-        <li><a href="index.html?category=${encodeURIComponent(cat)}" class="category-link">${cat} <span>${counts[cat]}</span></a></li>
+    categoriesContainer.innerHTML = categories.map(cat => `
+        <li>
+            <a class="category-item" href="index.html?category=${encodeURIComponent(cat.name)}">
+                <span class="material-symbols-outlined" style="font-size: 18px; margin-right: 8px;">${cat.icon}</span>
+                <span class="category-name">${cat.name}</span>
+                <span class="category-count">${counts[cat.name] || 0} 篇文章</span>
+            </a>
+        </li>
+    `).join('');
+}
+
+/**
+ * Render collections sidebar
+ */
+function renderCollectionsSidebar(collections, posts) {
+    const collectionsContainer = document.querySelector('.widget-collections .collections-list');
+    if (!collectionsContainer) return;
+
+    const counts = {};
+    posts.forEach(p => {
+        if (p.collection) {
+            counts[p.collection] = (counts[p.collection] || 0) + 1;
+        }
+    });
+
+    collectionsContainer.innerHTML = collections.map(col => `
+        <li>
+            <a class="category-item" href="index.html?collection=${encodeURIComponent(col.name)}">
+                <span class="material-symbols-outlined" style="font-size: 18px; margin-right: 8px;">${col.icon}</span>
+                <span class="category-name">${col.name}</span>
+                <span class="category-count">${counts[col.name] || 0} 篇文章</span>
+            </a>
+        </li>
     `).join('');
 }
 
@@ -44,21 +104,35 @@ async function renderHomePage() {
     const container = document.getElementById('posts-container');
     if (!container) return; // Not on the homepage
 
-    const allPosts = await fetchPosts();
-    renderCategoriesSidebar(allPosts);
+    const [allPosts, categories, collections] = await Promise.all([
+        fetchPosts(),
+        fetchCategories(),
+        fetchCollections()
+    ]);
+
+    renderCollectionsSidebar(collections, allPosts);
+    renderCategoriesSidebar(categories, allPosts);
 
     // Get URL parameters
     const params = new URLSearchParams(window.location.search);
     const categoryFilter = params.get('category');
+    const collectionFilter = params.get('collection');
     let currentPage = parseInt(params.get('page')) || 1;
 
     // Filter posts
     let filteredPosts = allPosts;
+    let filterTitle = '';
     if (categoryFilter) {
         filteredPosts = allPosts.filter(p => p.category === categoryFilter);
-        // Optionally update a page title to show the filter
-        const headerTitle = document.querySelector('h2.section-title');
-        if (headerTitle) headerTitle.textContent = `分类：${categoryFilter}`;
+        filterTitle = `分类：${categoryFilter}`;
+    } else if (collectionFilter) {
+        filteredPosts = allPosts.filter(p => p.collection === collectionFilter);
+        filterTitle = `合集：${collectionFilter}`;
+    }
+
+    if (filterTitle) {
+        const headerTitle = document.querySelector('.hero-title');
+        if (headerTitle) headerTitle.textContent = filterTitle;
     }
 
     if (filteredPosts.length === 0) {
@@ -72,6 +146,7 @@ async function renderHomePage() {
                 <time class="article-date">${post.date}</time>
                 <span class="mx-2">•</span>
                 <span class="article-category"><a href="index.html?category=${encodeURIComponent(post.category || '未分类')}">${post.category || '未分类'}</a></span>
+                ${post.collection ? `<span class="mx-2">•</span><span class="article-collection"><a href="index.html?collection=${encodeURIComponent(post.collection)}">${post.collection}</a></span>` : ''}
             </div>
             <h3 class="article-title"><a href="post.html?id=${post.id}">${post.title}</a></h3>
             <p class="article-excerpt">${post.excerpt}</p>

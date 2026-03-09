@@ -2,6 +2,7 @@
 title: 作为哲学的设计系统
 date: 2023年9月28日
 category: 设计
+collection: 设计哲学
 excerpt: 如何将结构化的设计思维应用于屏幕之外，以优化你的个人工作流和生活选择。
 heroImage: https://images.unsplash.com/photo-1502444330042-d1a1ddf9bb5b?q=80&w=1200
 ---

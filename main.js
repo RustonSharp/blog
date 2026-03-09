@@ -179,7 +179,7 @@ async function renderPostPage() {
     const currentPost = posts.find(p => p.id === postId);
 
     if (!currentPost) {
-        document.title = "404 未找到 | Mist Isle";
+        document.title = "404 未找到 | MISTISLE";
         titleEl.textContent = "Oops! 找不到该文章";
         contentEl.innerHTML = `
             <div style="text-align: center; padding: 4rem 0;">
@@ -192,7 +192,7 @@ async function renderPostPage() {
     }
 
     // 2. Populate metadata
-    document.title = `${currentPost.title} | Mist Isle`;
+    document.title = `${currentPost.title} | MISTISLE`;
     if (titleEl) titleEl.textContent = currentPost.title;
     if (dateEl) dateEl.textContent = currentPost.date;
     if (readTimeEl) readTimeEl.textContent = `阅读需 ${currentPost.readTime}`;
@@ -408,14 +408,6 @@ function setupThemeToggle() {
 
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', () => {
-    // Add logic to fix header links
-    const articleLinks = document.querySelectorAll('nav a[href="#"]');
-    articleLinks.forEach(link => {
-        if (link.textContent === '文章') link.href = 'index.html';
-        if (link.textContent === '合集') link.href = 'index.html#collections';
-        if (link.textContent === '关于') link.href = 'index.html#about';
-    });
-
     setupThemeToggle();
     setupShareButton();
     renderHomePage();

@@ -9,7 +9,7 @@ heroImage: https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=1
 
 ## 新增文章指南
 
-欢迎使用 Mist Isle 博客！本教程将帮助你快速上手，学会如何添加新的文章。
+欢迎使用 MISTISLE 博客！本教程将帮助你快速上手，学会如何添加新的文章。
 
 ### 第一步：创建 Markdown 文件
 

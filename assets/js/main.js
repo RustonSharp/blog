@@ -15,11 +15,11 @@ function injectFavicon() {
 }
 
 /**
- * Fetch and return the list of posts from posts.json
+ * Fetch and return the list of posts from data/posts.json
  */
 async function fetchPosts() {
     try {
-        const response = await fetch('./posts.json');
+        const response = await fetch('./data/posts.json');
         if (!response.ok) {
             throw new Error(`Failed to fetch posts: ${response.statusText}`);
         }
@@ -31,11 +31,11 @@ async function fetchPosts() {
 }
 
 /**
- * Fetch categories from categories.json
+ * Fetch categories from data/categories.json
  */
 async function fetchCategories() {
     try {
-        const response = await fetch('./categories.json');
+        const response = await fetch('./data/categories.json');
         if (!response.ok) {
             throw new Error(`Failed to fetch categories: ${response.statusText}`);
         }
@@ -47,11 +47,11 @@ async function fetchCategories() {
 }
 
 /**
- * Fetch collections from collections.json
+ * Fetch collections from data/collections.json
  */
 async function fetchCollections() {
     try {
-        const response = await fetch('./collections.json');
+        const response = await fetch('./data/collections.json');
         if (!response.ok) {
             throw new Error(`Failed to fetch collections: ${response.statusText}`);
         }

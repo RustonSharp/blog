@@ -56,42 +56,100 @@ An empty file that tells GitHub Pages not to use Jekyll to process the site, and
 
 ### Adding a New Article
 
-1. Create a Markdown file in the `posts/` directory
-2. Add frontmatter metadata:
+1. **Create Markdown File**
 
-```markdown
----
-title: Article Title
-date: March 9, 2026
-category: Category Name
-collection: Collection Name
-excerpt: Article excerpt
-heroImage: Cover image URL
----
+   Create a new `.md` file in the `posts/` directory. Use English filename, e.g., `my-article.md`.
 
-Article content...
-```
+2. **Add Frontmatter Metadata**
 
-3. Run the generation script:
+   Add the following format at the beginning of the file (note: space after field names):
 
-```bash
-python3 scripts/generate_posts.py
-```
+   ```markdown
+   ---
+   title: Article Title
+   date: March 9, 2026
+   category: Category Name
+   collection: Collection Name
+   excerpt: Article excerpt shown on homepage
+   heroImage: https://example.com/image.jpg
+   ---
 
-4. Refresh the webpage to see the new article
+   Article content supports Markdown syntax...
+   ```
+
+   **Field Description:**
+   | Field | Required | Description |
+   |-------|----------|-------------|
+   | `title` | ✅ | Article title |
+   | `date` | ✅ | Publish date, format: `Month D, YYYY` |
+   | `category` | ✅ | Category name, must be defined in `data/categories.json` first |
+   | `collection` | ❌ | Collection name, must be defined in `data/collections.json` first |
+   | `excerpt` | ❌ | Article excerpt, displayed on homepage cards |
+   | `heroImage` | ❌ | Cover image URL |
+
+3. **Generate Article Data**
+
+   Run the script to update `data/posts.json`:
+
+   ```bash
+   python3 scripts/generate_posts.py
+   ```
+
+   The script will automatically:
+   - Read all Markdown files
+   - Extract frontmatter metadata
+   - Calculate word count and estimated reading time
+   - Generate `data/posts.json`
+
+4. **View Results**
+
+   Refresh the webpage to see the new article. If not visible, check:
+   - Whether frontmatter format is correct (`---` delimiters)
+   - Whether category name matches the definition in `categories.json`
+   - Whether there are any error messages when running the script
 
 ### Adding Categories or Collections
 
-Edit `data/categories.json` or `data/collections.json`:
+#### Adding a Category
+
+1. Edit the `data/categories.json` file
+2. Add a new category object to the array:
 
 ```json
 {
-  "id": "category-id",
-  "name": "Category Name",
-  "icon": "material-icon-name",
-  "description": "Category description"
+  "id": "tutorial",
+  "name": "Tutorial",
+  "icon": "school",
+  "description": "Blog usage tutorials"
 }
 ```
+
+**Field Description:**
+| Field | Description |
+|-------|-------------|
+| `id` | Unique identifier, recommend lowercase English |
+| `name` | Category display name |
+| `icon` | Material Icons name, reference [Material Symbols](https://fonts.google.com/icons) |
+| `description` | Category description, displayed in sidebar |
+
+#### Adding a Collection
+
+1. Edit the `data/collections.json` file
+2. Same format as categories:
+
+```json
+{
+  "id": "blog-guide",
+  "name": "Blog Guide",
+  "icon": "menu_book",
+  "description": "How to use this blog system"
+}
+```
+
+**Notes:**
+- No need to run scripts after adding, just refresh the webpage
+- Ensure `id` is unique, don't duplicate existing categories/collections
+- Articles link to categories/collections via `category` and `collection` fields
 
 ## Deployment
 

@@ -56,42 +56,100 @@ mistisle.com
 
 ### 添加新文章
 
-1. 在 `posts/` 目录下创建 Markdown 文件
-2. 添加 frontmatter 元数据：
+1. **创建 Markdown 文件**
 
-```markdown
----
-title: 文章标题
-date: 2026年3月9日
-category: 分类名称
-collection: 合集名称
-excerpt: 文章摘要
-heroImage: 封面图片 URL
----
+   在 `posts/` 目录下创建新的 `.md` 文件，文件名建议使用英文，如 `my-article.md`。
 
-文章内容...
-```
+2. **添加 frontmatter 元数据**
 
-3. 运行生成脚本：
+   在文件开头添加以下格式（注意：字段名后要有空格）：
 
-```bash
-python3 scripts/generate_posts.py
-```
+   ```markdown
+   ---
+   title: 文章标题
+   date: 2026年3月9日
+   category: 分类名称
+   collection: 合集名称
+   excerpt: 文章摘要，显示在首页
+   heroImage: https://example.com/image.jpg
+   ---
+   
+   文章内容支持 Markdown 语法...
+   ```
 
-4. 刷新网页查看新文章
+   **字段说明：**
+   | 字段 | 必填 | 说明 |
+   |------|------|------|
+   | `title` | ✅ | 文章标题 |
+   | `date` | ✅ | 发布日期，格式：`YYYY年M月D日` |
+   | `category` | ✅ | 分类名称，需先在 `data/categories.json` 中定义 |
+   | `collection` | ❌ | 合集名称，需先在 `data/collections.json` 中定义 |
+   | `excerpt` | ❌ | 文章摘要，显示在首页卡片中 |
+   | `heroImage` | ❌ | 封面图片 URL |
+
+3. **生成文章数据**
+
+   运行脚本更新 `data/posts.json`：
+
+   ```bash
+   python3 scripts/generate_posts.py
+   ```
+
+   脚本会自动：
+   - 读取所有 Markdown 文件
+   - 提取 frontmatter 元数据
+   - 计算字数和预估阅读时间
+   - 生成 `data/posts.json`
+
+4. **查看效果**
+
+   刷新网页即可看到新文章。如果看不到，请检查：
+   - frontmatter 格式是否正确（`---` 分隔符）
+   - 分类名称是否与 `categories.json` 中定义的一致
+   - 运行脚本时是否有错误提示
 
 ### 添加分类或合集
 
-编辑 `data/categories.json` 或 `data/collections.json` 文件：
+#### 添加分类
+
+1. 编辑 `data/categories.json` 文件
+2. 在数组中添加新的分类对象：
 
 ```json
 {
-  "id": "分类ID",
-  "name": "分类名称",
-  "icon": "material-icon-name",
-  "description": "分类描述"
+  "id": "tutorial",
+  "name": "教程",
+  "icon": "school",
+  "description": "博客使用教程"
 }
 ```
+
+**字段说明：**
+| 字段 | 说明 |
+|------|------|
+| `id` | 唯一标识符，建议使用英文小写 |
+| `name` | 分类显示名称 |
+| `icon` | Material Icons 图标名称，参考 [Material Symbols](https://fonts.google.com/icons) |
+| `description` | 分类描述，显示在侧边栏 |
+
+#### 添加合集
+
+1. 编辑 `data/collections.json` 文件
+2. 格式与分类相同：
+
+```json
+{
+  "id": "blog-guide",
+  "name": "博客使用指南",
+  "icon": "menu_book",
+  "description": "如何使用这个博客系统"
+}
+```
+
+**注意事项：**
+- 添加后无需运行脚本，直接刷新网页即可生效
+- 确保 `id` 唯一，不要与现有分类/合集重复
+- 文章通过 `category` 和 `collection` 字段关联到分类和合集
 
 ## 部署
 

@@ -1,6 +1,20 @@
 // main.js - Client-side dynamic blog rendering logic
 
 /**
+ * Dynamically inject favicon
+ */
+function injectFavicon() {
+    // Check if favicon already exists
+    if (document.querySelector('link[rel="icon"]')) return;
+    
+    const link = document.createElement('link');
+    link.rel = 'icon';
+    link.type = 'image/svg+xml';
+    link.href = './assets/Easter_Island.svg';
+    document.head.appendChild(link);
+}
+
+/**
  * Fetch and return the list of posts from posts.json
  */
 async function fetchPosts() {
@@ -408,6 +422,7 @@ function setupThemeToggle() {
 
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', () => {
+    injectFavicon();
     setupThemeToggle();
     setupShareButton();
     renderHomePage();

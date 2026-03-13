@@ -122,6 +122,18 @@ function renderStatusMessage(container, message, showBackLink = false) {
 }
 
 /**
+ * Keep footer copyright year in sync with current year.
+ */
+function updateFooterYear() {
+    const footerEls = document.querySelectorAll('.footer-text');
+    if (!footerEls.length) return;
+    const year = new Date().getFullYear();
+    footerEls.forEach((el) => {
+        el.textContent = `© ${year} · 版权所有`;
+    });
+}
+
+/**
  * Dynamically inject favicon (only if Easter_Island.svg exists in assets/)
  */
 function injectFavicon() {
@@ -210,6 +222,7 @@ async function renderPostPage() {
     const dateEl = document.getElementById('post-date');
     const categoryEl = document.getElementById('post-category');
     const metaEl = document.getElementById('post-meta');
+    const metaSep1 = document.getElementById('post-meta-sep-1');
     const metaSep2 = document.getElementById('post-meta-sep-2');
 
     if (!postId || !contentEl) return; // Not on a valid post page
@@ -251,9 +264,11 @@ async function renderPostPage() {
         if (currentPost.subtitle) {
             subtitleEl.textContent = currentPost.subtitle;
             subtitleEl.style.display = '';
+            if (metaSep1) metaSep1.style.display = '';
             if (metaSep2) metaSep2.style.display = '';
         } else {
             subtitleEl.style.display = 'none';
+            if (metaSep1) metaSep1.style.display = 'none';
             if (metaSep2) metaSep2.style.display = 'none';
         }
     }
@@ -314,6 +329,7 @@ async function renderPostPage() {
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', () => {
     injectFavicon();
+    updateFooterYear();
     renderHomePage();
     renderPostPage();
 });

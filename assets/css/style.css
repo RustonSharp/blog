@@ -218,7 +218,7 @@ button {
 .btn-primary {
   background-color: var(--color-primary);
   color: var(--color-white);
-  box-shadow: 0 10px 15px -3px rgba(32, 96, 223, 0.2), 0 4px 6px -4px rgba(32, 96, 223, 0.1);
+  box-shadow: 0 10px 15px -3px rgba(var(--color-primary-rgb), 0.2), 0 4px 6px -4px rgba(var(--color-primary-rgb), 0.1);
 }
 
 .btn-primary:hover {

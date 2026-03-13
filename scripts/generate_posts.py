@@ -5,7 +5,7 @@ from datetime import datetime
 
 # Configuration
 POSTS_DIR = 'posts'
-OUTPUT_FILE = 'posts.json'
+OUTPUT_FILE = 'data/posts.json'
 
 def parse_frontmatter(content):
     """Parses standard YAML-like frontmatter from a markdown string."""

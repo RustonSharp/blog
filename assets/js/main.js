@@ -1,16 +1,35 @@
 // main.js - Client-side dynamic blog rendering logic
 
 /**
- * Dynamically inject favicon
+ * Get base path for assets/data - differs when page is in pages/ subdir vs root
+ */
+function getBasePath() {
+    return window.location.pathname.includes('/pages/') ? '../' : './';
+}
+
+/**
+ * Get path to index.html - for links back to homepage
+ */
+function getIndexPath() {
+    return window.location.pathname.includes('/pages/') ? '../index.html' : 'index.html';
+}
+
+/**
+ * Get path to post.html - for links to article detail
+ */
+function getPostPath() {
+    return window.location.pathname.includes('/pages/') ? 'post.html' : 'pages/post.html';
+}
+
+/**
+ * Dynamically inject favicon (only if Easter_Island.svg exists in assets/)
  */
 function injectFavicon() {
-    // Check if favicon already exists
     if (document.querySelector('link[rel="icon"]')) return;
-    
     const link = document.createElement('link');
     link.rel = 'icon';
     link.type = 'image/svg+xml';
-    link.href = './assets/Easter_Island.svg';
+    link.href = getBasePath() + 'assets/Easter_Island.svg';
     document.head.appendChild(link);
 }
 
@@ -19,7 +38,7 @@ function injectFavicon() {
  */
 async function fetchPosts() {
     try {
-        const response = await fetch('./data/posts.json');
+        const response = await fetch(getBasePath() + 'data/posts.json');
         if (!response.ok) {
             throw new Error(`Failed to fetch posts: ${response.statusText}`);
         }
@@ -35,7 +54,7 @@ async function fetchPosts() {
  */
 async function fetchCategories() {
     try {
-        const response = await fetch('./data/categories.json');
+        const response = await fetch(getBasePath() + 'data/categories.json');
         if (!response.ok) {
             throw new Error(`Failed to fetch categories: ${response.statusText}`);
         }
@@ -51,7 +70,7 @@ async function fetchCategories() {
  */
 async function fetchCollections() {
     try {
-        const response = await fetch('./data/collections.json');
+        const response = await fetch(getBasePath() + 'data/collections.json');
         if (!response.ok) {
             throw new Error(`Failed to fetch collections: ${response.statusText}`);
         }
@@ -77,7 +96,7 @@ function renderCategoriesSidebar(categories, posts) {
 
     categoriesContainer.innerHTML = categories.map(cat => `
         <li>
-            <a class="category-item" href="index.html?category=${encodeURIComponent(cat.name)}">
+            <a class="category-item" href="${getIndexPath()}?category=${encodeURIComponent(cat.name)}">
                 <span class="material-symbols-outlined" style="font-size: 18px; margin-right: 8px;">${cat.icon}</span>
                 <span class="category-name">${cat.name}</span>
                 <span class="category-count">${counts[cat.name] || 0} 篇文章</span>
@@ -102,7 +121,7 @@ function renderCollectionsSidebar(collections, posts) {
 
     collectionsContainer.innerHTML = collections.map(col => `
         <li>
-            <a class="category-item" href="index.html?collection=${encodeURIComponent(col.name)}">
+            <a class="category-item" href="${getIndexPath()}?collection=${encodeURIComponent(col.name)}">
                 <span class="material-symbols-outlined" style="font-size: 18px; margin-right: 8px;">${col.icon}</span>
                 <span class="category-name">${col.name}</span>
                 <span class="category-count">${counts[col.name] || 0} 篇文章</span>
@@ -159,12 +178,12 @@ async function renderHomePage() {
             <div class="article-meta">
                 <time class="article-date">${post.date}</time>
                 <span class="mx-2">•</span>
-                <span class="article-category"><a href="index.html?category=${encodeURIComponent(post.category || '未分类')}">${post.category || '未分类'}</a></span>
-                ${post.collection ? `<span class="mx-2">•</span><span class="article-collection"><a href="index.html?collection=${encodeURIComponent(post.collection)}">${post.collection}</a></span>` : ''}
+                <span class="article-category"><a href="${getIndexPath()}?category=${encodeURIComponent(post.category || '未分类')}">${post.category || '未分类'}</a></span>
+                ${post.collection ? `<span class="mx-2">•</span><span class="article-collection"><a href="${getIndexPath()}?collection=${encodeURIComponent(post.collection)}">${post.collection}</a></span>` : ''}
             </div>
-            <h3 class="article-title"><a href="post.html?id=${post.id}">${post.title}</a></h3>
+            <h3 class="article-title"><a href="${getPostPath()}?id=${post.id}">${post.title}</a></h3>
             <p class="article-excerpt">${post.excerpt}</p>
-            <a href="post.html?id=${post.id}" class="article-read-more">阅读文章 <span class="material-icons ml-1">arrow_forward</span></a>
+            <a href="${getPostPath()}?id=${post.id}" class="article-read-more">阅读文章 <span class="material-icons ml-1">arrow_forward</span></a>
         </article>
     `).join('');
 
@@ -198,7 +217,7 @@ async function renderPostPage() {
         contentEl.innerHTML = `
             <div style="text-align: center; padding: 4rem 0;">
                 <p class="text-secondary mb-4">这篇文章可能已经被移动或删除。</p>
-                <a href="index.html" class="btn btn-primary">返回首页</a>
+                <a href="${getIndexPath()}" class="btn btn-primary">返回首页</a>
             </div>
         `;
         if (heroEl) heroEl.style.display = 'none';
@@ -220,7 +239,7 @@ async function renderPostPage() {
 
     // 4. Fetch and render Markdown
     try {
-        const response = await fetch(`./posts/${currentPost.file}`);
+        const response = await fetch(getBasePath() + `posts/${currentPost.file}`);
         if (!response.ok) throw new Error("Failed to fetch markdown file");
 
         let markdown = await response.text();
@@ -260,7 +279,7 @@ async function renderPostPage() {
         contentEl.innerHTML = `
             <div style="text-align: center; padding: 4rem 0;">
                 <p class="text-secondary mb-4">加载文章内容时出现错误。</p>
-                <a href="index.html" class="btn btn-primary">返回首页</a>
+                <a href="${getIndexPath()}" class="btn btn-primary">返回首页</a>
             </div>
         `;
     }
@@ -281,7 +300,7 @@ function setupPostNavigation(posts, currentPost) {
 
     if (nextPost) {
         navHtml += `
-            <a href="post.html?id=${nextPost.id}" class="post-nav-card">
+            <a href="${getPostPath()}?id=${nextPost.id}" class="post-nav-card">
                 <div class="nav-card-label">
                     <span class="material-icons">arrow_back</span>
                     <span class="mx-2">•</span>
@@ -297,7 +316,7 @@ function setupPostNavigation(posts, currentPost) {
 
     if (prevPost) {
         navHtml += `
-            <a href="post.html?id=${prevPost.id}" class="post-nav-card text-right">
+            <a href="${getPostPath()}?id=${prevPost.id}" class="post-nav-card text-right">
                 <div class="nav-card-label">
                     下一篇
                     <span class="mx-2">•</span>

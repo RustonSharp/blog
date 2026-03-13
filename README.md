@@ -13,7 +13,7 @@
 
 ## 项目结构
 
-```
+```text
 blog/
 ├── index.html              # 首页
 ├── pages/                  # 页面目录
@@ -43,16 +43,40 @@ blog/
 ## 配置文件说明
 
 ### CNAME
+
 用于配置自定义域名。文件内容为域名地址，如：
-```
+
+```text
 mistisle.com
 ```
+
 部署到 GitHub Pages 后，博客将通过此域名访问。
 
 ### .nojekyll
+
 空文件，告诉 GitHub Pages 不要使用 Jekyll 处理网站，直接发布原始文件。
 
 ## 快速开始
+
+### 本地运行
+
+本博客使用 `fetch()` 加载数据，需通过 HTTP 服务访问，直接双击打开 HTML 文件无法正常显示内容。
+
+在项目根目录执行以下任一命令启动本地服务器：
+
+```bash
+# 使用 Python（推荐，无需额外安装）
+python3 -m http.server 8000
+```
+
+或：
+
+```bash
+# 使用 Node.js
+npx serve
+```
+
+然后在浏览器访问 `http://localhost:8000` 即可预览。
 
 ### 添加新文章
 
@@ -78,8 +102,9 @@ mistisle.com
    ```
 
    **字段说明：**
+
    | 字段 | 必填 | 说明 |
-   |------|------|------|
+   | --- | --- | --- |
    | `title` | ✅ | 文章标题 |
    | `date` | ✅ | 发布日期，格式：`YYYY年M月D日` |
    | `category` | ✅ | 分类名称，需先在 `data/categories.json` 中定义 |
@@ -125,8 +150,9 @@ mistisle.com
 ```
 
 **字段说明：**
+
 | 字段 | 说明 |
-|------|------|
+| --- | --- |
 | `id` | 唯一标识符，建议使用英文小写 |
 | `name` | 分类显示名称 |
 | `icon` | Material Icons 图标名称，参考 [Material Symbols](https://fonts.google.com/icons) |
@@ -147,6 +173,7 @@ mistisle.com
 ```
 
 **注意事项：**
+
 - 添加后无需运行脚本，直接刷新网页即可生效
 - 确保 `id` 唯一，不要与现有分类/合集重复
 - 文章通过 `category` 和 `collection` 字段关联到分类和合集

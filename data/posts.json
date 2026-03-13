@@ -2,13 +2,14 @@
     {
         "id": "example",
         "title": "如何新增一篇文章",
+        "subtitle": "博客使用指南",
         "date": "2026年3月9日",
         "category": "教程",
         "collection": "博客使用指南",
         "excerpt": "一步步教你如何在这个博客中添加新的文章。",
         "file": "example.md",
         "readTime": "1 分钟",
-        "wordCount": "360 字",
+        "wordCount": "379 字",
         "heroImage": "https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=1200"
     }
 ]

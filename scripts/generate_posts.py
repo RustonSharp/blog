@@ -34,6 +34,29 @@ def estimate_reading_time(word_count):
     minutes = max(1, round(word_count / 300))
     return f"{minutes} 分钟"
 
+def parse_date_for_sort(date_str):
+    """Parse date string into datetime for robust sorting."""
+    if not isinstance(date_str, str):
+        return datetime.min
+
+    date_str = date_str.strip()
+    supported_formats = [
+        '%Y年%m月%d日',
+        '%Y-%m-%d',
+        '%Y/%m/%d',
+        '%B %d, %Y',
+        '%b %d, %Y'
+    ]
+
+    for fmt in supported_formats:
+        try:
+            return datetime.strptime(date_str, fmt)
+        except ValueError:
+            continue
+
+    print(f"Warning: Unrecognized date format '{date_str}', fallback to oldest.")
+    return datetime.min
+
 def main():
     posts_data = []
     
@@ -72,6 +95,7 @@ def main():
                 post = {
                     "id": post_id,
                     "title": frontmatter.get('title', 'Untitled'),
+                    "subtitle": frontmatter.get('subtitle', ''),
                     "date": frontmatter.get('date', datetime.today().strftime('%Y年%m月%d日')),
                     "category": frontmatter.get('category', '未分类'),
                     "collection": frontmatter.get('collection', None),
@@ -90,9 +114,8 @@ def main():
             except Exception as e:
                 print(f"Error processing {filename}: {e}")
 
-    # Sort posts by date descending (simple string sort works for YYYY年MM月DD日 if formatted consistently, 
-    # otherwise might need proper date parsing for robust sorting)
-    posts_data.sort(key=lambda x: x.get('date', ''), reverse=True)
+    # Sort posts by parsed date descending
+    posts_data.sort(key=lambda x: parse_date_for_sort(x.get('date', '')), reverse=True)
 
     # Write the output JSON
     try:

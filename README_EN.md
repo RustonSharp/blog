@@ -5,20 +5,17 @@ A personal blog focused on design philosophy, technology practices, and deep thi
 ## Features
 
 - 🎨 Minimalist and modern design
-- 🌙 Dark/Light theme toggle support
 - 📱 Responsive layout for all devices
-- 🏷️ Article categories and collections management
-- 📊 Cloudflare Web Analytics integration
+- 🏷️ Article categories
 - ⚡ Pure static website for fast loading
 
 ## Project Structure
 
-```
+```text
 blog/
 ├── index.html              # Homepage
 ├── pages/                  # Pages directory
-│   ├── post.html           # Article detail page
-│   └── about.html          # About page
+│   └── post.html           # Article detail page
 ├── assets/                 # Static assets
 │   ├── css/
 │   │   └── style.css       # Stylesheet
@@ -27,14 +24,11 @@ blog/
 │   ├── Island_With_Tree.svg
 │   └── Easter_Island.svg
 ├── data/                   # Data files
-│   ├── categories.json     # Categories configuration
-│   ├── collections.json    # Collections configuration
 │   └── posts.json          # Posts data
 ├── scripts/                # Scripts directory
 │   └── generate_posts.py   # Article generation script
 ├── posts/                  # Markdown articles directory
 │   └── example.md
-├── .nojekyll               # Disable GitHub Pages Jekyll processing
 ├── CNAME                   # Custom domain configuration
 ├── README.md               # Chinese documentation
 └── README_EN.md            # English documentation
@@ -43,34 +37,59 @@ blog/
 ## Configuration Files
 
 ### CNAME
+
 Used to configure a custom domain. The file content is the domain address, e.g.:
-```
+
+```text
 mistisle.com
 ```
+
 After deploying to GitHub Pages, the blog will be accessible via this domain.
 
-### .nojekyll
-An empty file that tells GitHub Pages not to use Jekyll to process the site, and to publish the raw files directly.
-
 ## Quick Start
+
+### Run Locally
+
+This blog loads data using `fetch()`.
+You must serve it over HTTP;
+opening HTML files directly will not work.
+
+Run one of the commands below in the project root:
+
+```bash
+# Python (recommended)
+python3 -m http.server 8000
+```
+
+or:
+
+```bash
+# Node.js
+npx serve
+```
+
+Then open `http://localhost:8000` in your browser.
 
 ### Adding a New Article
 
 1. **Create Markdown File**
 
-   Create a new `.md` file in the `posts/` directory. Use English filename, e.g., `my-article.md`.
+   Create a new `.md` file in the `posts/` directory.
+   Use an English filename, e.g., `my-article.md`.
 
 2. **Add Frontmatter Metadata**
 
-   Add the following format at the beginning of the file (note: space after field names):
+   Add the following format at the beginning of the file
+   (note: space after field names):
 
    ```markdown
    ---
    title: Article Title
-   date: March 9, 2026
+   subtitle: Article Subtitle
+   date: 2026年3月9日
    category: Category Name
    collection: Collection Name
-   excerpt: Article excerpt shown on homepage
+   excerpt: Article excerpt shown under the title area on post page
    heroImage: https://example.com/image.jpg
    ---
 
@@ -78,13 +97,14 @@ An empty file that tells GitHub Pages not to use Jekyll to process the site, and
    ```
 
    **Field Description:**
+
    | Field | Required | Description |
-   |-------|----------|-------------|
+   | --- | --- | --- |
    | `title` | ✅ | Article title |
-   | `date` | ✅ | Publish date, format: `Month D, YYYY` |
-   | `category` | ✅ | Category name, must be defined in `data/categories.json` first |
-   | `collection` | ❌ | Collection name, must be defined in `data/collections.json` first |
-   | `excerpt` | ❌ | Article excerpt, displayed on homepage cards |
+   | `subtitle` | ❌ | Subtitle shown in metadata (between date and category) |
+   | `date` | ✅ | Publish date, e.g. `2026年3月9日` |
+   | `category` | ✅ | Category name |
+   | `excerpt` | ❌ | Article abstract shown in the post header area |
    | `heroImage` | ❌ | Cover image URL |
 
 3. **Generate Article Data**
@@ -105,51 +125,8 @@ An empty file that tells GitHub Pages not to use Jekyll to process the site, and
 
    Refresh the webpage to see the new article. If not visible, check:
    - Whether frontmatter format is correct (`---` delimiters)
-   - Whether category name matches the definition in `categories.json`
+   - Whether category name is correct
    - Whether there are any error messages when running the script
-
-### Adding Categories or Collections
-
-#### Adding a Category
-
-1. Edit the `data/categories.json` file
-2. Add a new category object to the array:
-
-```json
-{
-  "id": "tutorial",
-  "name": "Tutorial",
-  "icon": "school",
-  "description": "Blog usage tutorials"
-}
-```
-
-**Field Description:**
-| Field | Description |
-|-------|-------------|
-| `id` | Unique identifier, recommend lowercase English |
-| `name` | Category display name |
-| `icon` | Material Icons name, reference [Material Symbols](https://fonts.google.com/icons) |
-| `description` | Category description, displayed in sidebar |
-
-#### Adding a Collection
-
-1. Edit the `data/collections.json` file
-2. Same format as categories:
-
-```json
-{
-  "id": "blog-guide",
-  "name": "Blog Guide",
-  "icon": "menu_book",
-  "description": "How to use this blog system"
-}
-```
-
-**Notes:**
-- No need to run scripts after adding, just refresh the webpage
-- Ensure `id` is unique, don't duplicate existing categories/collections
-- Articles link to categories/collections via `category` and `collection` fields
 
 ## Deployment
 

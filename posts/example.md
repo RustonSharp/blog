@@ -1,5 +1,6 @@
 ---
 title: 如何新增一篇文章
+subtitle: 博客使用指南
 date: 2026年3月9日
 category: 教程
 collection: 博客使用指南
@@ -14,6 +15,7 @@ heroImage: https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=1
 ### 第一步：创建 Markdown 文件
 
 在 `posts/` 目录下创建一个新的 Markdown 文件，文件名建议使用简洁的英文，比如：
+
 - `my-first-post.md`
 - `tech-tips.md`
 - `design-thoughts.md`
@@ -25,20 +27,24 @@ heroImage: https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=1
 ```markdown
 ---
 title: 文章标题
+subtitle: 副标题
 date: 2026年3月9日
 category: 分类名称
 collection: 合集名称
-excerpt: 文章摘要
-heroImage: https://example.com/image.jpg
+excerpt: 文章摘要，显示在文章页标题下方
+heroImage: <https://example.com/image.jpg>
 ---
+
 ```
 
 **字段说明：**
+
 - `title`: 文章标题（必填）
+- `subtitle`: 副标题，显示在元信息中（可选）
 - `date`: 发布日期（必填）
-- `category`: 分类，需要在 `categories.json` 中定义（必填）
-- `collection`: 合集，需要在 `collections.json` 中定义（可选）
-- `excerpt`: 文章摘要，显示在首页（可选）
+- `category`: 分类（必填）
+- `collection`: 合集（可选）
+- `excerpt`: 文章摘要，显示在文章页标题区下方（可选）
 - `heroImage`: 封面图片 URL（可选）
 
 ### 第三步：撰写文章内容
@@ -50,10 +56,11 @@ heroImage: https://example.com/image.jpg
 写完文章后，在项目根目录运行：
 
 ```bash
-python3 generate_posts.py
+python3 scripts/generate_posts.py
 ```
 
 这个脚本会自动：
+
 1. 读取所有 Markdown 文件
 2. 提取 frontmatter 元数据
 3. 计算字数和阅读时间
@@ -61,10 +68,9 @@ python3 generate_posts.py
 
 ### 第五步：预览
 
-打开 `index.html` 即可看到你的新文章！
+启动本地 HTTP 服务后访问首页即可看到你的新文章（例如 `python3 -m http.server 8000` 后打开 `http://localhost:8000`）。
 
 ### 小贴士
 
-- 分类和合集需要先在 `categories.json` 和 `collections.json` 中定义
-- 每次添加或修改文章后都需要重新运行 `generate_posts.py`
+- 每次添加或修改文章后都需要重新运行 `scripts/generate_posts.py`
 - Markdown 支持语法高亮、图片、链接等丰富功能

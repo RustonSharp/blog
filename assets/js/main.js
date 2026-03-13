@@ -22,6 +22,106 @@ function getPostPath() {
 }
 
 /**
+ * Basic slug validation for post IDs from URL/query/data.
+ */
+function isValidSlug(value) {
+    return typeof value === 'string' && /^[a-z0-9-]+$/i.test(value);
+}
+
+/**
+ * Only allow markdown file names under posts/ without path traversal.
+ */
+function isSafePostFile(value) {
+    return typeof value === 'string' && /^[a-z0-9._-]+\.md$/i.test(value) && !value.includes('/') && !value.includes('\\') && !value.includes('..');
+}
+
+/**
+ * Normalize post shape to avoid runtime surprises from malformed JSON.
+ */
+function normalizePost(rawPost) {
+    const post = rawPost && typeof rawPost === 'object' ? rawPost : {};
+    return {
+        id: typeof post.id === 'string' ? post.id.trim() : '',
+        title: typeof post.title === 'string' ? post.title.trim() : '',
+        subtitle: typeof post.subtitle === 'string' ? post.subtitle.trim() : '',
+        date: typeof post.date === 'string' ? post.date.trim() : '',
+        category: typeof post.category === 'string' ? post.category.trim() : '',
+        collection: typeof post.collection === 'string' ? post.collection.trim() : '',
+        excerpt: typeof post.excerpt === 'string' ? post.excerpt.trim() : '',
+        file: typeof post.file === 'string' ? post.file.trim() : ''
+    };
+}
+
+/**
+ * Remove frontmatter block from markdown before parsing.
+ */
+function stripFrontmatter(markdown) {
+    if (!markdown.startsWith('---')) return markdown;
+    const endIdx = markdown.indexOf('\n---', 3);
+    return endIdx !== -1 ? markdown.substring(endIdx + 4).trim() : markdown;
+}
+
+/**
+ * Very small HTML sanitizer for marked output.
+ * Removes dangerous tags, event attrs and javascript: URLs.
+ */
+function sanitizeHtml(html) {
+    const template = document.createElement('template');
+    template.innerHTML = html;
+
+    template.content.querySelectorAll('script, iframe, object, embed, form, input, button, textarea, select, link, meta, style').forEach((node) => {
+        node.remove();
+    });
+
+    const walker = document.createTreeWalker(template.content, NodeFilter.SHOW_ELEMENT);
+    while (walker.nextNode()) {
+        const el = walker.currentNode;
+        for (const attr of Array.from(el.attributes)) {
+            const name = attr.name.toLowerCase();
+            const value = (attr.value || '').trim().toLowerCase();
+
+            if (name.startsWith('on')) {
+                el.removeAttribute(attr.name);
+                continue;
+            }
+
+            if ((name === 'href' || name === 'src' || name === 'xlink:href') && value.startsWith('javascript:')) {
+                el.removeAttribute(attr.name);
+            }
+        }
+    }
+
+    return template.innerHTML;
+}
+
+/**
+ * Render a centered status block without using innerHTML.
+ */
+function renderStatusMessage(container, message, showBackLink = false) {
+    if (!container) return;
+    container.textContent = '';
+
+    const wrapper = document.createElement('div');
+    wrapper.style.textAlign = 'center';
+    wrapper.style.padding = '4rem 0';
+
+    const p = document.createElement('p');
+    p.className = 'text-secondary mb-4';
+    p.textContent = message;
+    wrapper.appendChild(p);
+
+    if (showBackLink) {
+        const link = document.createElement('a');
+        link.href = getIndexPath();
+        link.className = 'btn btn-primary';
+        link.textContent = '返回首页';
+        wrapper.appendChild(link);
+    }
+
+    container.appendChild(wrapper);
+}
+
+/**
  * Dynamically inject favicon (only if Easter_Island.svg exists in assets/)
  */
 function injectFavicon() {
@@ -50,144 +150,48 @@ async function fetchPosts() {
 }
 
 /**
- * Fetch categories from data/categories.json
- */
-async function fetchCategories() {
-    try {
-        const response = await fetch(getBasePath() + 'data/categories.json');
-        if (!response.ok) {
-            throw new Error(`Failed to fetch categories: ${response.statusText}`);
-        }
-        return await response.json();
-    } catch (error) {
-        console.error("Error loading categories:", error);
-        return [];
-    }
-}
-
-/**
- * Fetch collections from data/collections.json
- */
-async function fetchCollections() {
-    try {
-        const response = await fetch(getBasePath() + 'data/collections.json');
-        if (!response.ok) {
-            throw new Error(`Failed to fetch collections: ${response.statusText}`);
-        }
-        return await response.json();
-    } catch (error) {
-        console.error("Error loading collections:", error);
-        return [];
-    }
-}
-
-/**
- * Render categories sidebar
- */
-function renderCategoriesSidebar(categories, posts) {
-    const categoriesContainer = document.querySelector('.widget-categories .categories-list');
-    if (!categoriesContainer) return;
-
-    const counts = {};
-    posts.forEach(p => {
-        const cat = p.category || '未分类';
-        counts[cat] = (counts[cat] || 0) + 1;
-    });
-
-    categoriesContainer.innerHTML = categories.map(cat => `
-        <li>
-            <a class="category-item" href="${getIndexPath()}?category=${encodeURIComponent(cat.name)}">
-                <span class="material-symbols-outlined" style="font-size: 18px; margin-right: 8px;">${cat.icon}</span>
-                <span class="category-name">${cat.name}</span>
-                <span class="category-count">${counts[cat.name] || 0} 篇文章</span>
-            </a>
-        </li>
-    `).join('');
-}
-
-/**
- * Render collections sidebar
- */
-function renderCollectionsSidebar(collections, posts) {
-    const collectionsContainer = document.querySelector('.widget-collections .collections-list');
-    if (!collectionsContainer) return;
-
-    const counts = {};
-    posts.forEach(p => {
-        if (p.collection) {
-            counts[p.collection] = (counts[p.collection] || 0) + 1;
-        }
-    });
-
-    collectionsContainer.innerHTML = collections.map(col => `
-        <li>
-            <a class="category-item" href="${getIndexPath()}?collection=${encodeURIComponent(col.name)}">
-                <span class="material-symbols-outlined" style="font-size: 18px; margin-right: 8px;">${col.icon}</span>
-                <span class="category-name">${col.name}</span>
-                <span class="category-count">${counts[col.name] || 0} 篇文章</span>
-            </a>
-        </li>
-    `).join('');
-}
-
-/**
  * Render the post list on the homepage
  */
 async function renderHomePage() {
     const container = document.getElementById('posts-container');
     if (!container) return; // Not on the homepage
 
-    const [allPosts, categories, collections] = await Promise.all([
-        fetchPosts(),
-        fetchCategories(),
-        fetchCollections()
-    ]);
+    const allPosts = await fetchPosts();
+    container.textContent = '';
 
-    renderCollectionsSidebar(collections, allPosts);
-    renderCategoriesSidebar(categories, allPosts);
-
-    // Get URL parameters
-    const params = new URLSearchParams(window.location.search);
-    const categoryFilter = params.get('category');
-    const collectionFilter = params.get('collection');
-    let currentPage = parseInt(params.get('page')) || 1;
-
-    // Filter posts
-    let filteredPosts = allPosts;
-    let filterTitle = '';
-    if (categoryFilter) {
-        filteredPosts = allPosts.filter(p => p.category === categoryFilter);
-        filterTitle = `分类：${categoryFilter}`;
-    } else if (collectionFilter) {
-        filteredPosts = allPosts.filter(p => p.collection === collectionFilter);
-        filterTitle = `合集：${collectionFilter}`;
-    }
-
-    if (filterTitle) {
-        const headerTitle = document.querySelector('.hero-title');
-        if (headerTitle) headerTitle.textContent = filterTitle;
-    }
-
-    if (filteredPosts.length === 0) {
-        container.innerHTML = '<p class="text-secondary">没有找到相关文章。</p>';
+    if (allPosts.length === 0) {
+        const emptyEl = document.createElement('p');
+        emptyEl.className = 'empty-text';
+        emptyEl.textContent = '没有找到相关文章。';
+        container.appendChild(emptyEl);
         return;
     }
 
-    const postsHtml = filteredPosts.map(post => `
-        <article class="article-card">
-            <div class="article-meta">
-                <time class="article-date">${post.date}</time>
-                <span class="mx-2">•</span>
-                <span class="article-category"><a href="${getIndexPath()}?category=${encodeURIComponent(post.category || '未分类')}">${post.category || '未分类'}</a></span>
-                ${post.collection ? `<span class="mx-2">•</span><span class="article-collection"><a href="${getIndexPath()}?collection=${encodeURIComponent(post.collection)}">${post.collection}</a></span>` : ''}
-            </div>
-            <h3 class="article-title"><a href="${getPostPath()}?id=${post.id}">${post.title}</a></h3>
-            <p class="article-excerpt">${post.excerpt}</p>
-            <a href="${getPostPath()}?id=${post.id}" class="article-read-more">阅读文章 <span class="material-icons ml-1">arrow_forward</span></a>
-        </article>
-    `).join('');
+    allPosts.forEach((rawPost) => {
+        const post = normalizePost(rawPost);
+        if (!post.title || !isValidSlug(post.id)) return;
 
-    container.innerHTML = postsHtml;
+        const card = document.createElement('article');
+        card.className = 'article-card';
+
+        const link = document.createElement('a');
+        link.className = 'article-link';
+        link.href = `${getPostPath()}?id=${encodeURIComponent(post.id)}`;
+
+        const title = document.createElement('h2');
+        title.className = 'article-title';
+        title.textContent = post.title;
+        link.appendChild(title);
+
+        const meta = document.createElement('p');
+        meta.className = 'article-meta-line';
+        const category = post.category || '未分类';
+        meta.textContent = `${post.date} — ${category}${post.collection ? ` · ${post.collection}` : ''}`;
+
+        card.appendChild(link);
+        card.appendChild(meta);
+        container.appendChild(card);
+    });
 }
 
 /**
@@ -200,250 +204,116 @@ async function renderPostPage() {
 
     // We expect the elements to be present in post.html
     const titleEl = document.getElementById('post-title');
+    const subtitleEl = document.getElementById('post-subtitle');
+    const excerptEl = document.getElementById('post-excerpt');
     const contentEl = document.getElementById('post-content');
-    const heroEl = document.getElementById('post-hero');
     const dateEl = document.getElementById('post-date');
-    const readTimeEl = document.getElementById('post-readtime');
-    const wordCountEl = document.getElementById('post-wordcount');
+    const categoryEl = document.getElementById('post-category');
+    const metaEl = document.getElementById('post-meta');
+    const metaSep2 = document.getElementById('post-meta-sep-2');
 
     if (!postId || !contentEl) return; // Not on a valid post page
 
+    if (!isValidSlug(postId)) {
+        document.title = '404 未找到 | MISTISLE';
+        if (titleEl) titleEl.textContent = 'Oops! 找不到该文章';
+        if (excerptEl) excerptEl.style.display = 'none';
+        if (metaEl) metaEl.style.display = 'none';
+        renderStatusMessage(contentEl, '文章参数无效。', true);
+        return;
+    }
+
     const posts = await fetchPosts();
-    const currentPost = posts.find(p => p.id === postId);
+    const currentPost = posts.map(normalizePost).find((p) => p.id === postId);
 
     if (!currentPost) {
         document.title = "404 未找到 | MISTISLE";
-        titleEl.textContent = "Oops! 找不到该文章";
-        contentEl.innerHTML = `
-            <div style="text-align: center; padding: 4rem 0;">
-                <p class="text-secondary mb-4">这篇文章可能已经被移动或删除。</p>
-                <a href="${getIndexPath()}" class="btn btn-primary">返回首页</a>
-            </div>
-        `;
-        if (heroEl) heroEl.style.display = 'none';
+        if (titleEl) titleEl.textContent = "Oops! 找不到该文章";
+        if (excerptEl) excerptEl.style.display = 'none';
+        if (metaEl) metaEl.style.display = 'none';
+        renderStatusMessage(contentEl, '这篇文章可能已经被移动或删除。', true);
+        return;
+    }
+
+    if (!isSafePostFile(currentPost.file)) {
+        document.title = "404 未找到 | MISTISLE";
+        if (titleEl) titleEl.textContent = "Oops! 找不到该文章";
+        if (excerptEl) excerptEl.style.display = 'none';
+        if (metaEl) metaEl.style.display = 'none';
+        renderStatusMessage(contentEl, '文章资源路径不合法。', true);
         return;
     }
 
     // 2. Populate metadata
     document.title = `${currentPost.title} | MISTISLE`;
     if (titleEl) titleEl.textContent = currentPost.title;
-    if (dateEl) dateEl.textContent = currentPost.date;
-    if (readTimeEl) readTimeEl.textContent = `阅读需 ${currentPost.readTime}`;
-    if (wordCountEl) wordCountEl.textContent = currentPost.wordCount;
-    if (heroEl && currentPost.heroImage) {
-        heroEl.style.backgroundImage = `url('${currentPost.heroImage}')`;
+    if (subtitleEl) {
+        if (currentPost.subtitle) {
+            subtitleEl.textContent = currentPost.subtitle;
+            subtitleEl.style.display = '';
+            if (metaSep2) metaSep2.style.display = '';
+        } else {
+            subtitleEl.style.display = 'none';
+            if (metaSep2) metaSep2.style.display = 'none';
+        }
+    }
+    if (dateEl) dateEl.textContent = currentPost.date || '未知日期';
+    if (categoryEl) categoryEl.textContent = currentPost.category || '未分类';
+    if (excerptEl) {
+        if (currentPost.excerpt) {
+            excerptEl.innerHTML = '';
+            const label = document.createElement('p');
+            label.className = 'post-excerpt-label';
+            label.textContent = '摘要';
+            const text = document.createElement('p');
+            text.className = 'post-excerpt-text';
+            text.textContent = currentPost.excerpt;
+            excerptEl.appendChild(label);
+            excerptEl.appendChild(text);
+            excerptEl.style.display = 'block';
+        } else {
+            excerptEl.style.display = 'none';
+        }
     }
 
-    // 3. Setup Next/Prev Navigation
-    setupPostNavigation(posts, currentPost);
-
-    // 4. Fetch and render Markdown
+    // 3. Fetch and render Markdown
     try {
         const response = await fetch(getBasePath() + `posts/${currentPost.file}`);
         if (!response.ok) throw new Error("Failed to fetch markdown file");
 
         let markdown = await response.text();
-
-        // Strip YAML frontmatter if present
-        if (markdown.startsWith('---')) {
-            const endIdx = markdown.indexOf('\n---', 3);
-            if (endIdx !== -1) {
-                markdown = markdown.substring(endIdx + 4).trim();
-            }
-        }
+        markdown = stripFrontmatter(markdown);
 
         // Use marked.js to parse the markdown (must be included in the HTML)
         if (typeof marked !== 'undefined') {
-            contentEl.innerHTML = marked.parse(markdown);
+            const parsedHtml = marked.parse(markdown);
+            contentEl.innerHTML = sanitizeHtml(parsedHtml);
 
-            // Execute syntax highlighting
-            if (typeof hljs !== 'undefined') {
-                document.querySelectorAll('pre code').forEach((block) => {
-                    hljs.highlightElement(block);
-                });
-            }
-
-            // Execute medium zoom for images
-            if (typeof mediumZoom !== 'undefined') {
-                mediumZoom('#post-content img', {
-                    margin: 24,
-                    background: getComputedStyle(document.body).getPropertyValue('--color-bg-alt') || '#f9f9f9'
+            // Render Typst/LaTeX math with KaTeX ($ inline, $$ block)
+            if (typeof renderMathInElement === 'function') {
+                renderMathInElement(contentEl, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false },
+                        { left: '\\(', right: '\\)', display: false },
+                        { left: '\\[', right: '\\]', display: true }
+                    ],
+                    throwOnError: false
                 });
             }
         } else {
             console.error("marked.js is not loaded.");
-            contentEl.innerHTML = "<p>Error: Markdown parser not loaded.</p>";
+            renderStatusMessage(contentEl, 'Markdown 解析器未加载。');
         }
     } catch (error) {
         console.error("Error loading markdown:", error);
-        contentEl.innerHTML = `
-            <div style="text-align: center; padding: 4rem 0;">
-                <p class="text-secondary mb-4">加载文章内容时出现错误。</p>
-                <a href="${getIndexPath()}" class="btn btn-primary">返回首页</a>
-            </div>
-        `;
+        renderStatusMessage(contentEl, '加载文章内容时出现错误。', true);
     }
-}
-
-/**
- * Setup Previous/Next links at the bottom of the post
- */
-function setupPostNavigation(posts, currentPost) {
-    const currentIndex = posts.findIndex(p => p.id === currentPost.id);
-    const prevPost = currentIndex > 0 ? posts[currentIndex - 1] : null;
-    const nextPost = currentIndex < posts.length - 1 ? posts[currentIndex + 1] : null;
-
-    const navContainer = document.getElementById('post-navigation-container');
-    if (!navContainer) return;
-
-    let navHtml = '';
-
-    if (nextPost) {
-        navHtml += `
-            <a href="${getPostPath()}?id=${nextPost.id}" class="post-nav-card">
-                <div class="nav-card-label">
-                    <span class="material-icons">arrow_back</span>
-                    <span class="mx-2">•</span>
-                    <span class="material-icons">description</span>
-                    <span>${nextPost.wordCount}</span> 上一篇
-                </div>
-                <h4 class="nav-card-title">${nextPost.title}</h4>
-            </a>
-        `;
-    } else {
-        navHtml += `<div class="post-nav-card" style="visibility: hidden;"></div>`;
-    }
-
-    if (prevPost) {
-        navHtml += `
-            <a href="${getPostPath()}?id=${prevPost.id}" class="post-nav-card text-right">
-                <div class="nav-card-label">
-                    下一篇
-                    <span class="mx-2">•</span>
-                    <span class="material-icons">description</span>
-                    <span>${prevPost.wordCount}</span>
-                    <span class="material-icons ml-1">arrow_forward</span>
-                </div>
-                <h4 class="nav-card-title">${prevPost.title}</h4>
-            </a>
-        `;
-    } else {
-        navHtml += `<div class="post-nav-card text-right" style="visibility: hidden;"></div>`;
-    }
-
-    navContainer.innerHTML = navHtml;
-}
-
-/**
- * Setup Web Share API for the share button
- */
-function setupShareButton() {
-    const shareBtns = document.querySelectorAll('button[aria-label="Share"]');
-    shareBtns.forEach(btn => {
-        btn.addEventListener('click', async () => {
-            const shareData = {
-                title: document.title,
-                url: window.location.href
-            };
-            if (navigator.share) {
-                try {
-                    await navigator.share(shareData);
-                } catch (err) {
-                    console.error("Error sharing:", err);
-                }
-            } else {
-                // Fallback: Copy to clipboard
-                navigator.clipboard.writeText(window.location.href);
-                const originalHTML = btn.innerHTML;
-                btn.innerHTML = '<span class="material-icons" style="color: var(--color-primary)">check</span>';
-                setTimeout(() => { btn.innerHTML = originalHTML; }, 2000);
-            }
-        });
-    });
-}
-
-/**
- * Setup Theme Toggle functionality
- */
-function setupThemeToggle() {
-    const themeToggleBtn = document.getElementById('theme-toggle');
-    if (!themeToggleBtn) return;
-    
-    const themeIcon = document.getElementById('theme-icon');
-    
-    // Check local storage or system preference
-    let savedTheme = null;
-    try {
-        savedTheme = localStorage.getItem('theme');
-    } catch (e) {
-        console.warn('LocalStorage is not accessible. Theme preference will not be saved.');
-    }
-    
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    let currentTheme = savedTheme || (prefersDark ? 'dark' : 'light');
-    
-    function applyTheme(theme) {
-        try {
-            document.documentElement.setAttribute('data-theme', theme);
-            if (themeIcon) {
-                themeIcon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
-            }
-            updateHighlightTheme(theme);
-        } catch (error) {
-            console.error('Error applying theme:', error);
-        }
-    }
-    
-    function updateHighlightTheme(theme) {
-        // Toggle highlight.js styles if present
-        const lightLink = document.querySelector('link[href*="github.min.css"]');
-        const darkLink = document.querySelector('link[href*="github-dark.min.css"]');
-        
-        if (lightLink && darkLink) {
-            if (theme === 'dark') {
-                lightLink.media = 'print';
-                darkLink.media = 'all';
-            } else {
-                lightLink.media = 'all';
-                darkLink.media = 'print';
-            }
-        }
-    }
-    
-    // Listen for system theme changes if not explicitly set
-    if (window.matchMedia) {
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-            let hasSaved = false;
-            try { hasSaved = !!localStorage.getItem('theme'); } catch(e) {}
-            
-            if (!hasSaved) {
-                const newTheme = e.matches ? 'dark' : 'light';
-                currentTheme = newTheme;
-                applyTheme(newTheme);
-            }
-        });
-    }
-
-    // Apply initially
-    applyTheme(currentTheme);
-    
-    themeToggleBtn.addEventListener('click', (event) => {
-        event.preventDefault(); // Prevent accidental form submissions/anchor jumping
-        currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        try {
-            localStorage.setItem('theme', currentTheme);
-        } catch (e) {
-            /* ignore */
-        }
-        applyTheme(currentTheme);
-    });
 }
 
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', () => {
     injectFavicon();
-    setupThemeToggle();
-    setupShareButton();
     renderHomePage();
     renderPostPage();
 });

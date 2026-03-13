@@ -122,18 +122,6 @@ function renderStatusMessage(container, message, showBackLink = false) {
 }
 
 /**
- * Keep footer copyright year in sync with current year.
- */
-function updateFooterYear() {
-    const footerEls = document.querySelectorAll('.footer-text');
-    if (!footerEls.length) return;
-    const year = new Date().getFullYear();
-    footerEls.forEach((el) => {
-        el.textContent = `© ${year} · 版权所有`;
-    });
-}
-
-/**
  * Dynamically inject favicon (only if Easter_Island.svg exists in assets/)
  */
 function injectFavicon() {
@@ -329,7 +317,6 @@ async function renderPostPage() {
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', () => {
     injectFavicon();
-    updateFooterYear();
     renderHomePage();
     renderPostPage();
 });

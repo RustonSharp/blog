@@ -13,14 +13,20 @@ A personal blog focused on design philosophy, technology practices, and deep thi
 
 ```text
 blog/
+├── .github/
+│   └── workflows/
+│       └── ci.yml           # Basic CI (generate + checks)
 ├── index.html              # Homepage
 ├── pages/                  # Pages directory
 │   └── post.html           # Article detail page
 ├── assets/                 # Static assets
 │   ├── css/
-│   │   └── style.css       # Stylesheet
+│   │   ├── style.css       # Base styles (cross-theme)
+│   │   └── theme-terminal.css # Terminal theme overrides
 │   ├── js/
-│   │   └── main.js         # Main JavaScript logic
+│   │   ├── main.js         # Bootstrap entry
+│   │   ├── shared.js       # Shared logic (theme/security/data)
+│   │   └── home.js         # Homepage renderer
 │   ├── Island_With_Tree.svg
 │   └── Easter_Island.svg
 ├── data/                   # Data files
@@ -30,6 +36,7 @@ blog/
 ├── posts/                  # Markdown articles directory
 │   └── example.md
 ├── CNAME                   # Custom domain configuration
+├── LICENSE                 # MIT license
 ├── README.md               # Chinese documentation
 └── README_EN.md            # English documentation
 ```
@@ -88,9 +95,12 @@ Then open `http://localhost:8000` in your browser.
    subtitle: Article Subtitle
    date: 2026年3月9日
    category: Category Name
+   tags: tag1, tag2, tag3
    collection: Collection Name
    excerpt: Article excerpt shown under the title area on post page
    heroImage: https://example.com/image.jpg
+   readTime: 3 min
+   wordCount: 1200 words
    ---
 
    Article content supports Markdown syntax...
@@ -103,9 +113,13 @@ Then open `http://localhost:8000` in your browser.
    | `title` | ✅ | Article title |
    | `subtitle` | ❌ | Subtitle shown in metadata (between date and category) |
    | `date` | ✅ | Publish date, e.g. `2026年3月9日` |
-   | `category` | ✅ | Category name |
+   | `category` | ❌ | Category name, defaults to `未分类` |
+   | `tags` | ❌ | Tag list (comma-separated), preferred over category for display |
+   | `collection` | ❌ | Collection name shown in homepage metadata |
    | `excerpt` | ❌ | Article abstract shown in the post header area |
    | `heroImage` | ❌ | Cover image URL |
+   | `readTime` | ❌ | Reading time (auto-generated if missing) |
+   | `wordCount` | ❌ | Word count (auto-generated if missing) |
 
 3. **Generate Article Data**
 
@@ -136,6 +150,19 @@ This project can be directly deployed to GitHub Pages:
 2. Enable GitHub Pages in repository settings
 3. Select main branch as source
 4. (Optional) Configure custom domain in CNAME file
+
+## Style Layering Rules
+
+- `assets/css/style.css`: base layer for layout, component skeletons, and shared variables.
+- `assets/css/theme-terminal.css`: theme layer for terminal-specific overrides only.
+- Keep load order fixed: `style.css` first, `theme-terminal.css` second.
+
+## Automated Checks
+
+- The repo includes `.github/workflows/ci.yml` to run:
+  - `scripts/generate_posts.py` and freshness check for `data/posts.json`
+  - JavaScript syntax checks
+  - Markdown lint
 
 ## Tech Stack
 

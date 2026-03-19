@@ -1,15 +1,35 @@
 [
     {
+        "id": "ai-driven-dev",
+        "title": "AI 驱动开发",
+        "subtitle": "原则与方法",
+        "date": "2026年3月15日",
+        "category": "技术",
+        "tags": [
+            "AI",
+            "开发",
+            "效率"
+        ],
+        "collection": null,
+        "excerpt": "AI 辅助开发的核心原则与实践方法，帮助你更高效地与 Coding Agents 协作",
+        "file": "ai-driven-dev.md",
+        "readTime": "1 分钟",
+        "wordCount": "361 字"
+    },
+    {
         "id": "example",
         "title": "如何新增一篇文章",
         "subtitle": "博客使用指南",
         "date": "2026年3月9日",
-        "category": "教程",
+        "category": "博客",
+        "tags": [
+            "博客"
+        ],
         "collection": "博客使用指南",
         "excerpt": "一步步教你如何在这个博客中添加新的文章。",
         "file": "example.md",
         "readTime": "1 分钟",
-        "wordCount": "379 字",
+        "wordCount": "410 字",
         "heroImage": "https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=1200"
     }
 ]

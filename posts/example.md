@@ -2,7 +2,8 @@
 title: 如何新增一篇文章
 subtitle: 博客使用指南
 date: 2026年3月9日
-category: 教程
+category: 博客
+tags: 博客
 collection: 博客使用指南
 excerpt: 一步步教你如何在这个博客中添加新的文章。
 heroImage: https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=1200
@@ -29,7 +30,8 @@ heroImage: https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=1
 title: 文章标题
 subtitle: 副标题
 date: 2026年3月9日
-category: 分类名称
+category: 主分类（可选）
+tags: 标签1, 标签2, 标签3
 collection: 合集名称
 excerpt: 文章摘要，显示在文章页标题下方
 heroImage: <https://example.com/image.jpg>
@@ -42,7 +44,8 @@ heroImage: <https://example.com/image.jpg>
 - `title`: 文章标题（必填）
 - `subtitle`: 副标题，显示在元信息中（可选）
 - `date`: 发布日期（必填）
-- `category`: 分类（必填）
+- `category`: 主分类（可选，适合导航）
+- `tags`: 标签列表（推荐，多个标签用英文逗号分隔）
 - `collection`: 合集（可选）
 - `excerpt`: 文章摘要，显示在文章页标题区下方（可选）
 - `heroImage`: 封面图片 URL（可选）

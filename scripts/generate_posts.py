@@ -7,26 +7,137 @@ from datetime import datetime
 POSTS_DIR = 'posts'
 OUTPUT_FILE = 'data/posts.json'
 
+def _parse_scalar(value):
+    """Parse a scalar value from frontmatter."""
+    if value is None:
+        return None
+
+    text = str(value).strip()
+    if not text:
+        return ''
+
+    if (text.startswith('"') and text.endswith('"')) or (text.startswith("'") and text.endswith("'")):
+        return text[1:-1]
+
+    lower = text.lower()
+    if lower in {'null', '~', 'none'}:
+        return None
+    if lower == 'true':
+        return True
+    if lower == 'false':
+        return False
+
+    return text
+
+
+def _parse_inline_list(value):
+    """Parse [a, b, c] into a Python list."""
+    inner = value[1:-1].strip()
+    if not inner:
+        return []
+
+    parts = []
+    current = []
+    quote = None
+    for ch in inner:
+        if quote:
+            if ch == quote:
+                quote = None
+            else:
+                current.append(ch)
+            continue
+
+        if ch in {"'", '"'}:
+            quote = ch
+        elif ch == ',':
+            parts.append(''.join(current).strip())
+            current = []
+        else:
+            current.append(ch)
+
+    if current:
+        parts.append(''.join(current).strip())
+
+    return [_parse_scalar(part) for part in parts if str(part).strip()]
+
+
+def _parse_frontmatter_block(frontmatter_str):
+    """
+    Parse a useful YAML subset:
+    - key: value
+    - key: [a, b, c]
+    - key:
+        - item1
+        - item2
+    - key: |
+        multi line text
+    """
+    data = {}
+    lines = frontmatter_str.splitlines()
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        stripped = line.strip()
+        if not stripped or stripped.startswith('#'):
+            i += 1
+            continue
+
+        if ':' not in line:
+            i += 1
+            continue
+
+        key, raw_value = line.split(':', 1)
+        key = key.strip()
+        raw_value = raw_value.strip()
+
+        # Block scalar
+        if raw_value in {'|', '>'}:
+            block = []
+            i += 1
+            while i < len(lines) and (lines[i].startswith(' ') or lines[i].startswith('\t')):
+                block.append(lines[i].lstrip())
+                i += 1
+            data[key] = '\n'.join(block).strip()
+            continue
+
+        # Indented list after `key:`
+        if raw_value == '':
+            items = []
+            j = i + 1
+            while j < len(lines) and (lines[j].startswith(' ') or lines[j].startswith('\t')):
+                child = lines[j].strip()
+                if child.startswith('- '):
+                    items.append(_parse_scalar(child[2:].strip()))
+                j += 1
+
+            data[key] = items if items else ''
+            i = j
+            continue
+
+        # Inline list
+        if raw_value.startswith('[') and raw_value.endswith(']'):
+            data[key] = _parse_inline_list(raw_value)
+            i += 1
+            continue
+
+        data[key] = _parse_scalar(raw_value)
+        i += 1
+
+    return data
+
+
 def parse_frontmatter(content):
-    """Parses standard YAML-like frontmatter from a markdown string."""
+    """Parses frontmatter from markdown with a practical YAML subset."""
     frontmatter = {}
     body = content
-    
-    # Check if the file starts with frontmatter delimiters
+
     if content.startswith('---'):
-        # Find the end of the frontmatter
         end_idx = content.find('\n---', 3)
         if end_idx != -1:
             frontmatter_str = content[3:end_idx].strip()
-            # Extract key-value pairs
-            for line in frontmatter_str.split('\n'):
-                if ':' in line:
-                    key, value = line.split(':', 1)
-                    frontmatter[key.strip()] = value.strip()
-            
-            # The rest is the body
+            frontmatter = _parse_frontmatter_block(frontmatter_str)
             body = content[end_idx + 4:].strip()
-            
+
     return frontmatter, body
 
 def estimate_reading_time(word_count):
@@ -57,6 +168,27 @@ def parse_date_for_sort(date_str):
     print(f"Warning: Unrecognized date format '{date_str}', fallback to oldest.")
     return datetime.min
 
+def parse_tags(tags_value, fallback_category=''):
+    """Parse tags from frontmatter and return a normalized list."""
+    value = str(tags_value or '').strip()
+    if value.startswith('[') and value.endswith(']'):
+        value = value[1:-1].strip()
+
+    tags = []
+    seen = set()
+    for item in value.split(','):
+        tag = item.strip().strip('"').strip("'")
+        if not tag or tag in seen:
+            continue
+        seen.add(tag)
+        tags.append(tag)
+
+    category = str(fallback_category or '').strip()
+    if not tags and category:
+        tags.append(category)
+
+    return tags
+
 def main():
     posts_data = []
     
@@ -66,7 +198,7 @@ def main():
         return
 
     # Process each markdown file in the posts directory
-    for filename in os.listdir(POSTS_DIR):
+    for filename in sorted(os.listdir(POSTS_DIR)):
         if filename.endswith('.md'):
             filepath = os.path.join(POSTS_DIR, filename)
             post_id = os.path.splitext(filename)[0]
@@ -98,6 +230,7 @@ def main():
                     "subtitle": frontmatter.get('subtitle', ''),
                     "date": frontmatter.get('date', datetime.today().strftime('%Y年%m月%d日')),
                     "category": frontmatter.get('category', '未分类'),
+                    "tags": parse_tags(frontmatter.get('tags', ''), frontmatter.get('category', '')),
                     "collection": frontmatter.get('collection', None),
                     "excerpt": frontmatter.get('excerpt', ''),
                     "file": filename,
@@ -115,7 +248,13 @@ def main():
                 print(f"Error processing {filename}: {e}")
 
     # Sort posts by parsed date descending
-    posts_data.sort(key=lambda x: parse_date_for_sort(x.get('date', '')), reverse=True)
+    posts_data.sort(
+        key=lambda x: (
+            parse_date_for_sort(x.get('date', '')),
+            str(x.get('id', ''))
+        ),
+        reverse=True
+    )
 
     # Write the output JSON
     try:

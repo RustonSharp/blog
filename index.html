@@ -5,15 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content="MISTISLE 博客，记录设计哲学、技术实践与深度思考。"/>
     <title>MISTISLE</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com"/>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Public+Sans:wght@400;700&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="./assets/css/style.css"/>
-    <script src="./assets/js/main.js" defer></script>
+    <link rel="stylesheet" href="./assets/css/theme-terminal.css"/>
+    <script type="module" src="./assets/js/main.js"></script>
 </head>
 <body>
     <div class="app-container">
         <main class="main-container">
+            <header class="home-terminal-header" aria-label="博客终端信息">
+                <p class="home-terminal-path">~/mistisle/blog</p>
+                <p class="home-terminal-command">ls posts --sort=date</p>
+                <p class="home-terminal-summary" id="home-terminal-summary">loading entries...</p>
+            </header>
             <div id="posts-container" class="article-list" aria-live="polite">
                 <p class="loading-text">加载中...</p>
             </div>
